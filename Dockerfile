@@ -17,10 +17,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies and Playwright Chromium
+# Install Python dependencies
 COPY backend/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-RUN python -m playwright install --with-deps chromium
+
+# Install Playwright Chromium and system apt dependencies
+RUN apt-get update && \
+    python -m playwright install --with-deps chromium && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy application files
 COPY backend /app/backend
