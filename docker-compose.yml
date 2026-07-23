@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  mediaseek:
+    # 从 GitHub Container Registry (GHCR) 拉取 x86 / amd64 镜像
+    image: ghcr.io/mylittledou/mediaseek:latest
+    container_name: mediaseek
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # 1. 媒体下载持久化目录
+      - ./downloads:/downloads
+      # 2. SQLite 数据库持久化目录（保存任务与历史记录）
+      - ./data:/app/data
+    environment:
+      # 1. 管理员登录凭证配置 (默认 admin / admin)
+      - ADMIN_USER=admin
+      - ADMIN_PASSWORD=admin
+      # 2. 默认下载存储路径
+      - DOWNLOAD_DIR=/downloads
+      # 3. 容器时区设置
+      - TZ=Asia/Shanghai
