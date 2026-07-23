@@ -1,35 +1,19 @@
 # ==============================================================================
-# MediaSeek M3U8 Downloader Dockerfile (Optimized for GHCR & x86_64)
+# MediaSeek M3U8 Downloader Dockerfile (Official Playwright Base Image)
 # ==============================================================================
-FROM python:3.11-slim
+FROM mcr.microsoft.com/playwright/python:v1.45.0-jammy
 
 LABEL org.opencontainers.image.source="https://github.com/mylittledou/mediaseek"
 LABEL org.opencontainers.image.description="High performance M3U8 Web Downloader with real-time progress tracking"
 LABEL org.opencontainers.image.licenses="MIT"
 
-ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
-
-# Install system dependencies including sudo & ffmpeg
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    ca-certificates \
-    curl \
-    gnupg \
-    sudo \
-    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Install Python dependencies
 COPY backend/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install Playwright system dependencies & Chromium browser
-RUN apt-get update && \
-    python -m playwright install-deps chromium && \
-    python -m playwright install chromium && \
-    rm -rf /var/lib/apt/lists/*
 
 # Copy application files
 COPY backend /app/backend
