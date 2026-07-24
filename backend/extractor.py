@@ -169,8 +169,13 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                 user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 locale="zh-CN"
             )
-            await context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
             page = await context.new_page()
+            
+            try:
+                from playwright_stealth import stealth_async
+                await stealth_async(page)
+            except ImportError:
+                await context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
             def handle_request(req):
                 if ".m3u8" in req.url:
