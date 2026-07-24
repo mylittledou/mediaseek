@@ -156,6 +156,16 @@ async def extract_video_from_webpage(req: ExtractRequest, user: str = Depends(ve
     result = await extract_m3u8_from_url(url)
     return result
 
+@app.get("/api/debug-image")
+def get_debug_image(user: str = Depends(verify_session)):
+    import glob
+    png_files = glob.glob(os.path.join(DEFAULT_DOWNLOAD_DIR, "debug_*.png"))
+    if not png_files:
+        raise HTTPException(status_code=404, detail="未找到任何调试截图，请先执行一次解析任务。")
+    # Get the latest image
+    latest_image = max(png_files, key=os.path.getctime)
+    return FileResponse(latest_image, media_type="image/png")
+
 @app.get("/api/config")
 def get_config(user: str = Depends(verify_session)):
     return {
