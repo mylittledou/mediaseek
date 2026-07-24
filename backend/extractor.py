@@ -231,6 +231,15 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                 await page.wait_for_timeout(4000)
 
                 content = await page.content()
+                
+                # Take debug screenshot
+                try:
+                    import time
+                    os.makedirs("/app/downloads", exist_ok=True)
+                    await page.screenshot(path=f"/app/downloads/debug_{int(time.time())}.png", full_page=True)
+                except Exception as e:
+                    print(f"Failed to take screenshot: {e}")
+
                 dom_found = find_m3u8_in_text(content, page_url)
                 for u in dom_found:
                     if u not in m3u8_found:
