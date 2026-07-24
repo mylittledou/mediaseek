@@ -196,18 +196,24 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                 
                 # Check title & wait for Cloudflare challenge bypass
                 # Turnstile can take up to 20-30 seconds to solve automatically in headless mode
-                for _ in range(25):
-                    title = await page.title()
-                    if title and "Just a moment" not in title and "cf-mitigated" not in title:
-                        page_title = title
+                for _ in range(40):
+                    content = await page.content()
+                    if "cf-turnstile" not in content and "正在进行安全验证" not in content and "Just a moment" not in content and "Please stand by" not in content:
+                        page_title = await page.title()
                         break
                     
-                    # Sometimes CF Turnstile needs a mouse move or click to trigger
+                    # Move mouse and click the turnstile iframe
                     try:
-                        await page.mouse.move(100, 100)
-                        await page.mouse.move(200, 200)
-                        # Explicitly click the turnstile widget if present
-                        await page.click('iframe[src*="turnstile"], iframe[src*="challenges"]', timeout=1000)
+                        iframe = await page.query_selector('iframe')
+                        if iframe:
+                            box = await iframe.bounding_box()
+                            if box:
+                                x = box["x"] + box["width"] / 2
+                                y = box["y"] + box["height"] / 2
+                                await page.mouse.move(x, y, steps=5)
+                                await page.mouse.down()
+                                await page.wait_for_timeout(100)
+                                await page.mouse.up()
                     except:
                         pass
                         
