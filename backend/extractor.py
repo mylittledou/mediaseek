@@ -185,17 +185,26 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
             page.on("request", handle_request)
 
             try:
-                await page.goto(page_url, wait_until="domcontentloaded", timeout=30000)
+                await page.goto(page_url, wait_until="domcontentloaded", timeout=45000)
                 
                 # Check title & wait for Cloudflare challenge bypass
-                for _ in range(8):
+                # Turnstile can take up to 20-30 seconds to solve automatically in headless mode
+                for _ in range(25):
                     title = await page.title()
-                    if title and "Just a moment" not in title:
+                    if title and "Just a moment" not in title and "cf-mitigated" not in title:
                         page_title = title
                         break
+                    
+                    # Sometimes CF Turnstile needs a mouse move to trigger
+                    try:
+                        await page.mouse.move(100, 100)
+                        await page.mouse.move(200, 200)
+                    except:
+                        pass
+                        
                     await asyncio.sleep(1)
 
-                await page.wait_for_timeout(3500)
+                await page.wait_for_timeout(5000)
 
                 content = await page.content()
                 dom_found = find_m3u8_in_text(content, page_url)
