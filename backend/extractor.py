@@ -160,6 +160,12 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                     '--window-size=1920,1080'
                 ]
             }
+            
+            # Use proxy if configured in environment variables
+            proxy_env = os.environ.get("HTTP_PROXY") or os.environ.get("HTTPS_PROXY") or os.environ.get("http_proxy") or os.environ.get("https_proxy")
+            if proxy_env:
+                launch_kwargs["proxy"] = {"server": proxy_env}
+
             if os.path.exists(exec_path):
                 launch_kwargs["executable_path"] = exec_path
                 
