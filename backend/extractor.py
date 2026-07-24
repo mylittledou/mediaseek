@@ -202,17 +202,19 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                         page_title = await page.title()
                         break
                     
-                    # Move mouse and click the turnstile iframe
+                    # Move mouse and click the turnstile iframe's checkbox (located on the left side)
                     try:
                         iframe = await page.query_selector('iframe')
                         if iframe:
                             box = await iframe.bounding_box()
                             if box:
-                                x = box["x"] + box["width"] / 2
+                                # The checkbox is on the left side, not the center
+                                x = box["x"] + 40
                                 y = box["y"] + box["height"] / 2
-                                await page.mouse.move(x, y, steps=5)
+                                await page.mouse.move(x, y, steps=10)
+                                await page.wait_for_timeout(300)
                                 await page.mouse.down()
-                                await page.wait_for_timeout(100)
+                                await page.wait_for_timeout(150)
                                 await page.mouse.up()
                     except:
                         pass
