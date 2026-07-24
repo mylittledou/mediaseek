@@ -152,14 +152,8 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
         
         async with async_playwright() as p:
             launch_kwargs = {
-                "headless": False,
-                "args": [
-                    '--headless=new',
-                    '--disable-blink-features=AutomationControlled',
-                    '--no-sandbox',
-                    '--disable-infobars',
-                    '--window-size=1920,1080'
-                ]
+                "headless": True, # Firefox works fine with normal headless
+                "args": []
             }
             
             # Use proxy if configured in environment variables
@@ -167,22 +161,16 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
             if proxy_env:
                 launch_kwargs["proxy"] = {"server": proxy_env}
 
-            if os.path.exists(exec_path):
-                launch_kwargs["executable_path"] = exec_path
-                
-            browser = await p.chromium.launch(**launch_kwargs)
+            browser = await p.firefox.launch(**launch_kwargs)
             context = await browser.new_context(
                 viewport={"width": 1920, "height": 1080},
-                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                locale="zh-CN"
+                locale="zh-CN",
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
             )
             page = await context.new_page()
             
-            try:
-                from playwright_stealth import stealth_async
-                await stealth_async(page)
-            except ImportError:
-                await context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+            # Basic webdriver mask
+            await context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
             def handle_request(req):
                 if ".m3u8" in req.url:
