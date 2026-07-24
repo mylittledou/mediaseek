@@ -120,7 +120,7 @@
         <div class="glass-panel main-form-panel">
           <div class="panel-header">
             <h2>新建 M3U8 下载任务</h2>
-            <p>支持直接输入 `.m3u8` 视频链接，或粘贴播放网页地址自动提取视频流。</p>
+            <p>支持直接输入 <code>.m3u8</code> 视频直链地址。</p>
           </div>
 
           <form id="download-form" class="download-form">
@@ -128,24 +128,16 @@
             <div class="form-group">
               <label for="m3u8-url">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                M3U8 视频链接 或 视频网页地址 <span class="required">*</span>
+                M3U8 视频链接 <span class="required">*</span>
               </label>
               <div class="input-group">
                 <div class="input-wrapper" style="flex: 1;">
-                  <input type="url" id="m3u8-url" placeholder="支持直链 https://.../video.m3u8 或 网页 https://.../play.html" required autocomplete="off">
+                  <input type="url" id="m3u8-url" placeholder="仅支持直接传入标准的 m3u8 视频流地址 (例如 https://.../video.m3u8)" required autocomplete="off">
                   <button type="button" class="btn-icon-inside" id="btn-paste" title="粘贴剪贴板">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
                 </div>
-                <button type="button" class="btn-secondary" id="btn-extract" title="从输入的网页中解析 M3U8 视频流">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                  <span>智能解析网页</span>
-                </button>
-              </div>
-              <div id="extracted-urls-panel" class="extracted-panel" style="display: none;">
-                <label style="font-size: 0.8rem; color: var(--accent-cyan); margin-top: 0.4rem;">🎬 检测到以下视频流 (点击选择)：</label>
-                <select id="extracted-urls-select" style="margin-top: 0.2rem;"></select>
-              </div>
+
             </div>
 
             <!-- Filename Input -->

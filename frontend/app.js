@@ -209,9 +209,6 @@ function initForm() {
   const form = document.getElementById("download-form");
   const pasteBtn = document.getElementById("btn-paste");
   const resetPathBtn = document.getElementById("btn-reset-path");
-  const extractBtn = document.getElementById("btn-extract");
-  const extractedPanel = document.getElementById("extracted-urls-panel");
-  const extractedSelect = document.getElementById("extracted-urls-select");
 
   if (pasteBtn) {
     pasteBtn.addEventListener("click", async () => {
@@ -234,62 +231,7 @@ function initForm() {
     });
   }
 
-  if (extractBtn) {
-    extractBtn.addEventListener("click", async () => {
-      const urlInput = document.getElementById("m3u8-url");
-      const titleInput = document.getElementById("video-title");
-      const targetUrl = urlInput.value.trim();
 
-      if (!targetUrl) {
-        showToast("请先输入或粘贴网页地址", "error");
-        return;
-      }
-
-      extractBtn.disabled = true;
-      const originalHtml = extractBtn.innerHTML;
-      extractBtn.innerHTML = `<span>解析中...</span>`;
-
-      try {
-        const res = await fetch("/api/extract", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: targetUrl })
-        });
-
-        const data = await res.json();
-        if (data.status === "success" && data.m3u8_urls && data.m3u8_urls.length > 0) {
-          showToast(`成功提取到 ${data.m3u8_urls.length} 个视频流`, "success");
-          
-          if (data.title && !titleInput.value.trim()) {
-            titleInput.value = data.title;
-          }
-
-          urlInput.value = data.m3u8_urls[0];
-
-          if (data.m3u8_urls.length > 1) {
-            extractedSelect.innerHTML = data.m3u8_urls.map((u, i) => `<option value="${escapeHtml(u)}">视频流 ${i+1}: ${escapeHtml(u)}</option>`).join("");
-            extractedPanel.style.display = "block";
-          } else {
-            extractedPanel.style.display = "none";
-          }
-        } else {
-          showToast(data.message || "未能在该网页中检测到有效的 M3U8 视频播放地址", "error");
-          extractedPanel.style.display = "none";
-        }
-      } catch (err) {
-        showToast("解析网页超时或失败，请检查网络", "error");
-      } finally {
-        extractBtn.disabled = false;
-        extractBtn.innerHTML = originalHtml;
-      }
-    });
-  }
-
-  if (extractedSelect) {
-    extractedSelect.addEventListener("change", (e) => {
-      document.getElementById("m3u8-url").value = e.target.value;
-    });
-  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -304,30 +246,8 @@ function initForm() {
       return;
     }
 
-    // Auto-extract if user pastes webpage URL instead of direct M3U8
-    if (!url.toLowerCase().includes(".m3u8")) {
-      showToast("正在尝试从网页中解析视频流...", "success");
-      try {
-        const extRes = await fetch("/api/extract", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url })
-        });
-        const extData = await extRes.json();
-        if (extData.status === "success" && extData.m3u8_urls && extData.m3u8_urls.length > 0) {
-          url = extData.m3u8_urls[0];
-          if (!title && extData.title) {
-            title = extData.title;
-          }
-          showToast("已自动从网页提取视频地址并开始下载！", "success");
-        } else {
-          showToast(extData.message || "未能从输入的网页地址中自动提取视频 M3U8", "error");
-          return;
-        }
-      } catch (err) {
-        showToast("自动解析网页失败", "error");
-        return;
-      }
+    if (!url.toLowerCase().includes(".m3u8") && !url.toLowerCase().includes(".mp4")) {
+      showToast("警告：链接可能不是标准的视频流地址", "success");
     }
 
     try {
@@ -343,7 +263,6 @@ function initForm() {
         showToast("下载任务建立成功！", "success");
         form.reset();
         document.getElementById("save-path").value = defaultDownloadDir;
-        if (extractedPanel) extractedPanel.style.display = "none";
         
         renderAll();
         switchTab("tab-downloading");

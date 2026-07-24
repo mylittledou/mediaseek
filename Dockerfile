@@ -1,7 +1,9 @@
 # ==============================================================================
-# MediaSeek M3U8 Downloader Dockerfile (Official Playwright Base Image)
+# MediaSeek M3U8 Downloader Dockerfile
 # ==============================================================================
-FROM mcr.microsoft.com/playwright/python:v1.45.0-jammy
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 
 LABEL org.opencontainers.image.source="https://github.com/mylittledou/mediaseek"
 LABEL org.opencontainers.image.description="High performance M3U8 Web Downloader with real-time progress tracking"

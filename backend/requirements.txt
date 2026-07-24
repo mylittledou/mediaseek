@@ -6,6 +6,3 @@ pycryptodome>=3.18.0
 websockets>=11.0.3
 aiofiles>=23.1.0
 pydantic>=2.0
-curl_cffi>=0.7.0
-playwright==1.45.0
-playwright-stealth>=1.0.6
