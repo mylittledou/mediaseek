@@ -167,6 +167,18 @@ def shutil_ffmpeg_check():
     import shutil
     return shutil.which("ffmpeg") is not None or os.path.exists("/opt/homebrew/bin/ffmpeg")
 
+@app.get("/api/folders")
+def list_folders(user: str = Depends(verify_session)):
+    try:
+        folders = ["/"]
+        if os.path.exists(DEFAULT_DOWNLOAD_DIR):
+            for item in os.listdir(DEFAULT_DOWNLOAD_DIR):
+                if os.path.isdir(os.path.join(DEFAULT_DOWNLOAD_DIR, item)):
+                    folders.append(item)
+        return folders
+    except Exception as e:
+        return ["/"]
+
 @app.get("/api/tasks")
 def list_tasks(user: str = Depends(verify_session)):
     all_tasks = get_all_tasks()
