@@ -204,7 +204,25 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                         
                     await asyncio.sleep(1)
 
-                await page.wait_for_timeout(5000)
+                await page.wait_for_timeout(2000)
+                
+                # Attempt to click play buttons to trigger deferred M3U8 loads (e.g. MissAV)
+                play_selectors = [
+                    ".plyr__control--overlaid",
+                    ".vjs-big-play-button",
+                    ".fp-ui", 
+                    "video",
+                    "button[title='Play']",
+                    "div.play-button"
+                ]
+                for selector in play_selectors:
+                    try:
+                        await page.click(selector, timeout=1000)
+                        await page.wait_for_timeout(500)
+                    except:
+                        pass
+
+                await page.wait_for_timeout(4000)
 
                 content = await page.content()
                 dom_found = find_m3u8_in_text(content, page_url)
