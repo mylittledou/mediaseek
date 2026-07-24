@@ -17,7 +17,10 @@ from downloader import M3U8Downloader
 from extractor import extract_m3u8_from_url
 
 # Default download dir & Admin auth config
-DEFAULT_DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "downloads")))
+if os.path.exists("/.dockerenv"):
+    DEFAULT_DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "/downloads")
+else:
+    DEFAULT_DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "downloads")))
 os.makedirs(DEFAULT_DOWNLOAD_DIR, exist_ok=True)
 
 ADMIN_USER = os.getenv("ADMIN_USER", "admin")

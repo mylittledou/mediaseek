@@ -235,8 +235,12 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                 # Take debug screenshot
                 try:
                     import time
-                    os.makedirs("/app/downloads", exist_ok=True)
-                    await page.screenshot(path=f"/app/downloads/debug_{int(time.time())}.png", full_page=True)
+                    if os.path.exists("/.dockerenv"):
+                        down_dir = os.getenv("DOWNLOAD_DIR", "/downloads")
+                    else:
+                        down_dir = os.getenv("DOWNLOAD_DIR", os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "downloads")))
+                    os.makedirs(down_dir, exist_ok=True)
+                    await page.screenshot(path=os.path.join(down_dir, f"debug_{int(time.time())}.png"), full_page=True)
                 except Exception as e:
                     print(f"Failed to take screenshot: {e}")
 
