@@ -152,8 +152,9 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
         
         async with async_playwright() as p:
             launch_kwargs = {
-                "headless": True,
+                "headless": False,
                 "args": [
+                    '--headless=new',
                     '--disable-blink-features=AutomationControlled',
                     '--no-sandbox',
                     '--disable-infobars',
@@ -201,10 +202,12 @@ async def extract_with_playwright(page_url: str) -> tuple[str, List[str]]:
                         page_title = title
                         break
                     
-                    # Sometimes CF Turnstile needs a mouse move to trigger
+                    # Sometimes CF Turnstile needs a mouse move or click to trigger
                     try:
                         await page.mouse.move(100, 100)
                         await page.mouse.move(200, 200)
+                        # Explicitly click the turnstile widget if present
+                        await page.click('iframe[src*="turnstile"], iframe[src*="challenges"]', timeout=1000)
                     except:
                         pass
                         
